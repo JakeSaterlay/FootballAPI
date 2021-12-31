@@ -22,7 +22,7 @@ namespace FootballAPI.Controllers
         }
 
         [HttpGet]
-        [Route("api/getteams")]
+        [Route("api/teams/getallteams")]
         public List<TeamModel> GetAllTeams()
         {
             var teamList = new List<TeamModel>();
@@ -46,7 +46,7 @@ namespace FootballAPI.Controllers
         }
 
         [HttpGet]
-        [Route("api/getteambyid/{id}")]
+        [Route("api/teams/getteambyid/{id}")]
         public TeamModel GetTeamById(int id)
         {
             var team = _dbList.Where(x => x.TeamId == id).FirstOrDefault();
@@ -66,6 +66,35 @@ namespace FootballAPI.Controllers
             };
 
             return model;
+        }
+
+        [HttpGet]
+        [Route("api/teams/searchteams")]
+        public List<TeamModel> SearchTeams(string searchTerms)
+        {
+            var teams = _dbList.Where(x => x.Name.Contains(searchTerms));
+
+            if (teams == null)
+                throw new Exception("No teams found");
+
+            var teamList = new List<TeamModel>();
+
+            foreach(var team in teams)
+            {
+                var teamToAdd = new TeamModel()
+                {
+                    TeamId = team.TeamId,
+                    Name = team.Name,
+                    Stadium = new Models.Stadium()
+                    {
+                        Name = team.Stadium.Name,
+                        Capacity = team.Stadium.Capacity
+                    }
+                };
+                teamList.Add(teamToAdd);
+            }
+
+            return teamList;
         }
     }
 }
